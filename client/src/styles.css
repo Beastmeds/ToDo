@@ -1,0 +1,15 @@
+body{ font-family: Arial, Helvetica, sans-serif; margin:0; padding:0 }
+.auth{ padding:20px; }
+.auth-forms{ display:flex; gap:20px }
+.auth-form{ border:1px solid #ddd; padding:10px; border-radius:6px }
+.auth-form input{ display:block; margin:6px 0; padding:6px }
+.app header{ display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f2f2f2 }
+.todo{ padding:10px }
+.todo-add input{ padding:6px }
+.todo ul{ list-style:none; padding:0 }
+.todo li{ display:flex; justify-content:space-between; padding:6px; border-bottom:1px solid #eee }
+.todo li.done span{ text-decoration:line-through; color:#888 }
+.chat{ padding:10px }
+.messages{ min-height:200px; border:1px solid #eee; padding:10px; margin-bottom:8px }
+.messages .user{ text-align:right }
+.messages .assistant{ text-align:left; color:#003 }
