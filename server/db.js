@@ -23,6 +23,14 @@ db.serialize(() => {
       FOREIGN KEY(user_id) REFERENCES users(id)
     )
   `);
+  // Ensure `role` column exists on users (default 'user') - safe migration
+  db.all("PRAGMA table_info(users)", [], (err, rows) => {
+    if (err) return;
+    const hasRole = rows && rows.some(r => r.name === 'role');
+    if (!hasRole) {
+      db.run("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'");
+    }
+  });
 });
 
 module.exports = db;
