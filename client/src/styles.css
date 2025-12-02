@@ -1,15 +1,86 @@
-body{ font-family: Arial, Helvetica, sans-serif; margin:0; padding:0 }
-.auth{ padding:20px; }
-.auth-forms{ display:flex; gap:20px }
-.auth-form{ border:1px solid #ddd; padding:10px; border-radius:6px }
-.auth-form input{ display:block; margin:6px 0; padding:6px }
-.app header{ display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f2f2f2 }
-.todo{ padding:10px }
-.todo-add input{ padding:6px }
-.todo ul{ list-style:none; padding:0 }
-.todo li{ display:flex; justify-content:space-between; padding:6px; border-bottom:1px solid #eee }
-.todo li.done span{ text-decoration:line-through; color:#888 }
+:root{
+	--bg: #f6f8fa;
+	--card: #ffffff;
+	--muted: #6b7280;
+	--accent: #2563eb;
+}
+body{ font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; padding:0; background:var(--bg); color:#111827 }
+.container{ max-width:980px; margin:24px auto; padding:12px }
+.auth{ padding:20px; display:flex; justify-content:center }
+.auth-forms{ display:flex; gap:20px; align-items:flex-start }
+.card{ background:var(--card); border-radius:12px; box-shadow:0 6px 20px rgba(17,24,39,0.06); padding:14px }
+.auth-form{ width:260px }
+.auth-form h3{ margin:0 0 8px 0 }
+.auth-form input{ display:block; width:100%; margin:8px 0; padding:10px; border:1px solid #e6e9ee; border-radius:8px }
+.auth-form button{ width:100%; padding:10px; border-radius:8px; border:0; background:var(--accent); color:white; cursor:pointer }
+.auth-form .error{ margin-top:8px; color:#b91c1c }
+.app header{ display:flex; justify-content:space-between; align-items:center; padding:12px; background:transparent }
+.app header h2{ margin:0 }
+.app header button{ margin-left:8px; padding:8px 10px; border-radius:8px; border:1px solid #e6e9ee; background:white; cursor:pointer }
+.todo{ padding:16px }
+.todo-add input{ padding:8px; border-radius:8px; border:1px solid #e6e9ee }
+.todo ul{ list-style:none; padding:0; margin-top:12px }
+.todo li{ display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #f1f5f9 }
+.todo li.done span{ text-decoration:line-through; color:var(--muted) }
 .chat{ padding:10px }
-.messages{ min-height:200px; border:1px solid #eee; padding:10px; margin-bottom:8px }
-.messages .user{ text-align:right }
-.messages .assistant{ text-align:left; color:#003 }
+.messages{ min-height:180px; border:1px solid #eef2ff; padding:10px; margin-bottom:8px; border-radius:8px; background:#fbfdff }
+.messages .user{ text-align:right; color:var(--muted) }
+.messages .assistant{ text-align:left; color:#0f172a }
+.chat-input{ display:flex; gap:8px }
+.chat-input input{ flex:1; padding:8px; border-radius:8px; border:1px solid #e6e9ee }
+
+/* New visual improvements */
+.hero{
+	display:flex; align-items:center; gap:24px; justify-content:space-between; padding:28px; background:linear-gradient(90deg, #eef2ff, #ffffff); border-radius:12px; margin-bottom:16px
+}
+.hero .left{ flex:1 }
+.hero h1{ margin:0; font-size:28px; color:#0f172a }
+.hero p{ color:var(--muted); margin-top:8px }
+.btn-primary{ background:var(--accent); color:white; padding:10px 14px; border-radius:10px; border:0; cursor:pointer }
+.btn-ghost{ background:transparent; border:1px solid rgba(37,99,235,0.12); color:var(--accent); padding:8px 12px; border-radius:10px; cursor:pointer }
+.header-actions{ display:flex; gap:8px; align-items:center }
+.small-muted{ color:var(--muted); font-size:13px }
+.center{ text-align:center }
+
+/* modal */
+.modal-backdrop{ position:fixed; inset:0; background:rgba(2,6,23,0.5); display:flex; align-items:center; justify-content:center; z-index:60 }
+.modal{ width:420px; max-width:95%; padding:18px; transform:translateY(-8px) scale(0.98); animation: modalIn 220ms ease forwards }
+.modal-backdrop{ animation: fadeIn 220ms ease }
+
+@keyframes modalIn{ from{ opacity:0; transform: translateY(-12px) scale(0.96) } to{ opacity:1; transform: translateY(0) scale(1) } }
+@keyframes fadeIn{ from{ opacity:0 } to{ opacity:1 } }
+.btn-primary{ background:linear-gradient(90deg,#2563eb,#7c3aed); color:white; padding:10px 14px; border-radius:12px; border:0; cursor:pointer; box-shadow:0 8px 18px rgba(37,99,235,0.12) }
+.btn-primary.active, .btn-ghost.active{ box-shadow: inset 0 -3px 0 rgba(0,0,0,0.06) }
+.btn-ghost{ border:1px solid rgba(124,58,237,0.12); color:#7c3aed }
+
+/* button hover */
+.btn-primary:hover{ transform:translateY(-1px) }
+.btn-ghost:hover{ background:rgba(124,58,237,0.04) }
+
+
+/* ToDo item actions */
+.todo .actions button{ margin-left:8px; padding:6px 8px; border-radius:8px; border:0; cursor:pointer }
+.btn-danger{ background:#ef4444; color:white }
+.btn-ok{ background:#10b981; color:white }
+
+/* Owner panel styling */
+.owner-panel ul{ list-style:none; padding:0 }
+.owner-panel li{ padding:6px 0; border-bottom:1px dashed #f1f5f9 }
+
+@media (max-width:700px){
+	.auth-forms{ flex-direction:column; align-items:center }
+	.hero{ flex-direction:column; text-align:center }
+}
+
+/* Dark theme */
+:root.dark{
+	--bg: #0b1220;
+	--card: #071226;
+	--muted: #9ca3af;
+	--accent: #7c3aed;
+	color-scheme: dark;
+}
+
+body.dark{ background:var(--bg); color:#e6eef8 }
+
+
