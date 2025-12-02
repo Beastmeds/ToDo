@@ -32,6 +32,20 @@ OPENAI_API_KEY=sk-...   # optional, für echten Chatbot
 
 Wenn `OPENAI_API_KEY` nicht gesetzt ist, antwortet der Chatbot mit einer einfachen Echo-Antwort.
 
+Owner-Account erstellen
+
+Für spezielle "Owner"-Features (z. B. Benutzer- und ToDo-Übersicht) kannst du einen Owner-Account anlegen.
+
+- Setze in `server/.env` zusätzlich `OWNER_KEY` auf einen geheimen Wert.
+- Erstelle dann den Owner-Account per API-Request (PowerShell-Beispiel):
+
+```powershell
+$body = @{ username = 'owner'; password = 'sicheresPasswort'; ownerKey = 'DEIN_OWNER_KEY' } | ConvertTo-Json
+Invoke-RestMethod -Uri http://localhost:4000/api/setup/owner -Method Post -Body $body -ContentType 'application/json'
+```
+
+Die Antwort enthält `token` und `user` (mit `role: owner`). Wenn du dich mit diesem Account anmeldest, siehst du im Frontend zusätzliche Owner-Features.
+
 Git hochladen
 
 ```powershell
