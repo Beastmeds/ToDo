@@ -58,6 +58,23 @@ git branch -M main
 git push -u origin main
 ```
 
+Vercel Deployment (Monorepo Hinweis)
+
+Wenn dein Repo `server/` und `client/` enthält (Monorepo), konfiguriere Vercel so, dass der Build im `client`-Ordner stattfindet. Zwei Optionen:
+
+- Im Vercel Dashboard: setze `Root Directory` auf `client`, `Framework Preset` auf `Vite`, `Build Command` auf `npm run build` und `Output Directory` auf `dist`.
+- Oder lege `vercel.json` in der Repo-Wurzel an (beispiel bereits im Repo). Vercel erkennt dann automatisch, dass die `client` App gebaut werden soll.
+
+Lokales Testen des Produktions-Builds
+
+```powershell
+cd client
+npm install
+npm run build
+npx serve dist
+```
+
+
 Weiteres
 
 Wenn du möchtest, kann ich:
