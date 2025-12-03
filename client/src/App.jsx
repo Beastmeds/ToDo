@@ -6,6 +6,7 @@ import Chatbot from './components/Chatbot'
 import OwnerPanel from './components/OwnerPanel'
 import AuthModal from './components/AuthModal'
 import ProfileModal from './components/ProfileModal'
+import SettingsModal from './components/SettingsModal'
 
 const API = 'http://localhost:4000/api'
 
@@ -15,7 +16,9 @@ export default function App(){
   const [view, setView] = useState('todos')
   const [showAuth, setShowAuth] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
   const [dark, setDark] = useState(localStorage.getItem('theme') === 'dark')
+  const [settings, setSettings] = useState(JSON.parse(localStorage.getItem('settings') || '{}'))
 
   useEffect(()=>{
     if(token) localStorage.setItem('token', token); else localStorage.removeItem('token')
@@ -23,7 +26,8 @@ export default function App(){
     if(dark) document.documentElement.classList.add('dark')
     else document.documentElement.classList.remove('dark')
     localStorage.setItem('theme', dark ? 'dark' : 'light')
-  }, [token, user, dark])
+    localStorage.setItem('settings', JSON.stringify(settings || {}))
+  }, [token, user, dark, settings])
 
   if(!token) return (
     <div className="container">
@@ -47,8 +51,9 @@ export default function App(){
     </div>
   )
 
+  const containerStyle = settings?.backgroundImage ? { backgroundImage: `url(${settings.backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}
   return (
-    <div className="container">
+    <div className={`container ${settings?.background || ''}`} style={containerStyle}>
       <div className="app card">
         <header style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
           <div style={{display:'flex', gap:12, alignItems:'center'}}>
@@ -59,6 +64,7 @@ export default function App(){
             <button onClick={()=>setView('todos')}>Aufgaben</button>
             <button onClick={()=>setView('chat')}>KI-Chat</button>
             {user?.role === 'owner' && <button onClick={()=>setView('owner')}>Owner Panel</button>}
+            <button onClick={()=>setShowSettings(true)}>Einstellungen</button>
             <button onClick={()=>setShowProfile(true)}>Profil</button>
             <button onClick={()=>setDark(d=>!d)}>{dark? 'Light' : 'Dark'}</button>
             <button onClick={()=>{setToken(null); setUser(null)}}>Logout</button>
@@ -71,6 +77,7 @@ export default function App(){
         </main>
       </div>
       {showProfile && <ProfileModal onClose={()=>setShowProfile(false)} onUpdate={(u)=>setUser(u)} />}
+      {showSettings && <SettingsModal settings={settings} onClose={()=>setShowSettings(false)} onSave={(s)=>{ setSettings(s); setShowSettings(false); setDark(s.theme === 'dark') }} />}
     </div>
   )
 }

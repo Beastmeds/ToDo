@@ -79,7 +79,7 @@ app.post('/api/setup/owner', async (req, res) => {
 
 // Admin routes (owner-only)
 app.get('/api/admin/users', authMiddleware, (req, res) => {
-  if (req.user.role !== 'owner') return res.status(403).json({ error: 'Forbidden' });
+  if (!['owner','admin'].includes(req.user.role)) return res.status(403).json({ error: 'Forbidden' });
   db.all('SELECT id, username, role FROM users', [], (err, rows) => {
     if (err) return res.status(500).json({ error: 'DB error' });
     res.json(rows);
@@ -87,8 +87,52 @@ app.get('/api/admin/users', authMiddleware, (req, res) => {
 });
 
 app.get('/api/admin/todos', authMiddleware, (req, res) => {
-  if (req.user.role !== 'owner') return res.status(403).json({ error: 'Forbidden' });
+  if (!['owner','admin'].includes(req.user.role)) return res.status(403).json({ error: 'Forbidden' });
   db.all('SELECT * FROM todos ORDER BY created_at DESC', [], (err, rows) => {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json(rows);
+  });
+});
+
+// Admin: change role of a user
+app.put('/api/admin/users/:id/role', authMiddleware, (req, res) => {
+  if (req.user.role !== 'owner') return res.status(403).json({ error: 'Forbidden' });
+  const targetId = parseInt(req.params.id, 10);
+  const { role } = req.body;
+  if (!['user', 'owner'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+  if (req.user.id === targetId) return res.status(400).json({ error: 'Cannot change own role' });
+  db.run('UPDATE users SET role = ? WHERE id = ?', [role, targetId], function (err) {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    // insert audit log
+    db.run('INSERT INTO audit_logs (actor_id, action, target_id, detail) VALUES (?, ?, ?, ?)', [req.user.id, 'change_role', targetId, `role=${role}`], () => {
+      res.json({ success: true });
+    });
+  });
+});
+
+// Admin: delete a user and their todos
+app.delete('/api/admin/users/:id', authMiddleware, (req, res) => {
+  if (req.user.role !== 'owner') return res.status(403).json({ error: 'Forbidden' });
+  const targetId = parseInt(req.params.id, 10);
+  if (req.user.id === targetId) return res.status(400).json({ error: 'Cannot delete own account' });
+  db.serialize(() => {
+    db.run('DELETE FROM todos WHERE user_id = ?', [targetId], function (e1) {
+      if (e1) return res.status(500).json({ error: 'DB error' });
+      db.run('DELETE FROM users WHERE id = ?', [targetId], function (e2) {
+        if (e2) return res.status(500).json({ error: 'DB error' });
+        // audit log for deletion
+        db.run('INSERT INTO audit_logs (actor_id, action, target_id, detail) VALUES (?, ?, ?, ?)', [req.user.id, 'delete_user', targetId, `deleted_user_and_todos`], () => {
+          res.json({ success: true });
+        });
+      });
+    });
+  });
+});
+
+// Admin: get audit logs
+app.get('/api/admin/logs', authMiddleware, (req, res) => {
+  if (!['owner','admin'].includes(req.user.role)) return res.status(403).json({ error: 'Forbidden' });
+  db.all('SELECT id, actor_id, action, target_id, detail, created_at FROM audit_logs ORDER BY created_at DESC LIMIT 200', [], (err, rows) => {
     if (err) return res.status(500).json({ error: 'DB error' });
     res.json(rows);
   });

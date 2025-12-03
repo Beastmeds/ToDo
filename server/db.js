@@ -23,6 +23,17 @@ db.serialize(() => {
       FOREIGN KEY(user_id) REFERENCES users(id)
     )
   `);
+  
+  db.run(`
+    CREATE TABLE IF NOT EXISTS audit_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      actor_id INTEGER,
+      action TEXT,
+      target_id INTEGER,
+      detail TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
   // Ensure `role` column exists on users (default 'user') - safe migration
   db.all("PRAGMA table_info(users)", [], (err, rows) => {
     if (err) return;
