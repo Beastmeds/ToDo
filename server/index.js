@@ -33,6 +33,23 @@ function authMiddleware(req, res, next) {
   }
 }
 
+// Optional auth: if Authorization header present and valid, attach req.user, otherwise continue without error.
+function optionalAuth(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth) return next();
+  const token = auth.split(' ')[1];
+  try {
+    const data = jwt.verify(token, JWT_SECRET);
+    db.get('SELECT id, username, role FROM users WHERE id = ?', [data.id], (err, row) => {
+      if (!err && row) req.user = row;
+      return next();
+    });
+  } catch (err) {
+    // invalid token: ignore and continue as guest (do not 401)
+    return next();
+  }
+}
+
 app.post('/api/auth/register', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'username and password required' });
@@ -170,7 +187,7 @@ app.delete('/api/todos/:id', authMiddleware, (req, res) => {
   });
 });
 
-app.post('/api/chat', authMiddleware, async (req, res) => {
+app.post('/api/chat', optionalAuth, async (req, res) => {
   const { message, persona } = req.body;
   const key = process.env.OPENAI_API_KEY;
 
