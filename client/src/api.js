@@ -37,5 +37,12 @@ export function createApi(token, base){
   const instance = axios.create({ baseURL })
   if(token) instance.defaults.headers.common['Authorization'] = `Bearer ${token}`
   if(typeof window !== 'undefined') console.debug('API base used:', baseURL)
+  // Add a response interceptor to handle 401 (invalid/expired token)
+  instance.interceptors.response.use(fn => fn, err => {
+    if(err && err.response && err.response.status === 401){
+      try{ window.dispatchEvent(new CustomEvent('app:unauthorized')) }catch(e){}
+    }
+    return Promise.reject(err)
+  })
   return instance
 }

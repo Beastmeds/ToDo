@@ -44,6 +44,17 @@ export default function App(){
     return ()=>{ mounted = false }
   }, [])
 
+  // Listen for unauthorized events (triggered by API interceptor) and force logout
+  useEffect(()=>{
+    const handler = ()=>{
+      setToken(null)
+      setUser(null)
+      setShowAuth(true)
+    }
+    window.addEventListener('app:unauthorized', handler)
+    return ()=> window.removeEventListener('app:unauthorized', handler)
+  }, [])
+
   if(!token) return (
     <div className="container">
       <div className="hero card">
