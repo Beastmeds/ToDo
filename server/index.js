@@ -171,10 +171,22 @@ app.delete('/api/todos/:id', authMiddleware, (req, res) => {
 });
 
 app.post('/api/chat', authMiddleware, async (req, res) => {
-  const { message } = req.body;
+  const { message, persona } = req.body;
   const key = process.env.OPENAI_API_KEY;
+
+  // Map persona to a system prompt
+  const personaPrompts = {
+    'A': 'Du bist ein hilfsbereiter, freundlicher Assistent. Gib ausführliche, hilfreiche Antworten und Beispiele.',
+    'B': 'Du bist ein kurzer, prägnanter Assistent. Antworte knapp, direkt und auf den Punkt, ohne lange Erklärungen.'
+  };
+
+  const systemPrompt = personaPrompts[(persona || 'A')] || personaPrompts['A'];
+
   if (!key) {
-    // Fallback simple assistant behavior
+    // Fallback simple assistant behavior that respects persona
+    if ((persona || 'A') === 'B') {
+      return res.json({ reply: `Kurz: ${message}` });
+    }
     return res.json({ reply: `Assistenz (offline): Ich habe deine Nachricht erhalten: "${message}"` });
   }
 
@@ -182,7 +194,14 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
     const resp = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-      body: JSON.stringify({ model: 'gpt-3.5-turbo', messages: [{ role: 'user', content: message }], max_tokens: 300 })
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message }
+        ],
+        max_tokens: 300
+      })
     });
     const data = await resp.json();
     const reply = data?.choices?.[0]?.message?.content || JSON.stringify(data);
