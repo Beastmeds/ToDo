@@ -221,6 +221,15 @@ app.post('/api/chat', optionalAuth, async (req, res) => {
       })
     });
     const data = await resp.json();
+    // Handle OpenAI API errors (e.g. insufficient_quota) gracefully
+    if (data && data.error) {
+      console.error('OpenAI API error:', data.error)
+      // specific handling for insufficient quota
+      if (data.error.code === 'insufficient_quota') {
+        return res.status(402).json({ error: 'OpenAI quota exceeded', detail: 'Die OpenAI-API hat dein Kontingent überschritten. Bitte prüfe Plan/Billing.' })
+      }
+      return res.status(500).json({ error: 'OpenAI error', detail: data.error })
+    }
     const reply = data?.choices?.[0]?.message?.content || JSON.stringify(data);
     res.json({ reply });
   } catch (err) {
