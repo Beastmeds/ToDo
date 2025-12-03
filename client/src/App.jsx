@@ -7,6 +7,7 @@ import OwnerPanel from './components/OwnerPanel'
 import AuthModal from './components/AuthModal'
 import ProfileModal from './components/ProfileModal'
 import SettingsModal from './components/SettingsModal'
+import { findWorkingBase, createApi } from './api'
 
 const API = 'http://localhost:4000/api'
 
@@ -19,6 +20,8 @@ export default function App(){
   const [showSettings, setShowSettings] = useState(false)
   const [dark, setDark] = useState(localStorage.getItem('theme') === 'dark')
   const [settings, setSettings] = useState(JSON.parse(localStorage.getItem('settings') || '{}'))
+  const [apiBase, setApiBase] = useState(null)
+  const [backendOk, setBackendOk] = useState(true)
 
   useEffect(()=>{
     if(token) localStorage.setItem('token', token); else localStorage.removeItem('token')
@@ -28,6 +31,18 @@ export default function App(){
     localStorage.setItem('theme', dark ? 'dark' : 'light')
     localStorage.setItem('settings', JSON.stringify(settings || {}))
   }, [token, user, dark, settings])
+
+  // On mount, try to detect a working backend URL
+  useEffect(()=>{
+    let mounted = true
+    ;(async ()=>{
+      const working = await findWorkingBase()
+      if(!mounted) return
+      if(working){ setApiBase(working); setBackendOk(true) }
+      else { setApiBase(null); setBackendOk(false) }
+    })()
+    return ()=>{ mounted = false }
+  }, [])
 
   if(!token) return (
     <div className="container">
@@ -54,6 +69,11 @@ export default function App(){
   const containerStyle = settings?.backgroundImage ? { backgroundImage: `url(${settings.backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}
   return (
     <div className={`container ${settings?.background || ''}`} style={containerStyle}>
+      {!backendOk && (
+        <div style={{background:'#fff4e5', color:'#92400e', padding:10, borderRadius:8, marginBottom:8}}>
+          Backend nicht erreichbar. ToDos werden lokal gespeichert. Um volle Funktion zu erhalten, setze die Backend-URL als `VITE_API_BASE` in Vercel oder deploye das Backend und stelle die URL ein.
+        </div>
+      )}
       <div className="app card">
         <header style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
           <div style={{display:'flex', gap:12, alignItems:'center'}}>

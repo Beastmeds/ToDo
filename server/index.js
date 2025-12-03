@@ -192,6 +192,11 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
   }
 });
 
+// Health endpoint for frontend / deploy checks
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, env: process.env.NODE_ENV || 'development' });
+});
+
 const os = require('os');
 const HOST = process.env.HOST || '0.0.0.0';
 
