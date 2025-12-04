@@ -74,6 +74,32 @@ npm run build
 npx serve dist
 ```
 
+Railway Deployment (Backend)
+
+Kurzanleitung, um das `server/` auf Railway zu deployen (schnell, ohne große Änderungen):
+
+1. Erstelle ein Railway‑Konto und melde dich an: https://railway.app
+2. Neue Project → Deploy from GitHub → wähle dieses Repository aus.
+3. Bei der Service-Erstellung: setze den `Root Directory` (oder Service Root) auf `server` (oder wähle die Option, das `server` Verzeichnis zu deployen). Railway erkennt Node und verwendet `npm start`.
+4. Füge die Umgebungsvariablen in Railway (Settings → Variables) hinzu:
+	- `JWT_SECRET` (ein sicheres Geheimnis)
+	- `OWNER_KEY` (für Owner Setup)
+	- `OPENAI_API_KEY` (falls du echten Chat möchtest)
+5. (Optional, empfohlen) Für persistente SQLite‑Daten aktiviere Railway Persistent Disk oder verwende einen verwalteten Postgres‑Dienst und passe das Backend an.
+	- Railway bietet "Persistent Storage" oder du kannst den Postgres‑Plugin hinzufügen und das Backend auf Postgres umstellen (empfohlen für Produktion).
+6. Deploy starten. Railway gibt dir eine URL, z. B. `https://todo-backend.up.railway.app`.
+
+Vercel (Frontend) verbinden
+
+1. In Vercel Dashboard → Project Settings → Environment Variables setze:
+	- Key: `VITE_API_BASE`
+	- Value: `https://<deine-railway-url>/api` (z. B. `https://todo-backend.up.railway.app/api`)
+2. Redeploy das Frontend in Vercel (Deployments → Redeploy) oder push einen Commit.
+
+Hinweis zu SQLite auf Railway
+- Railway kann persistenten Speicher bieten, aber für robuste Produktion ist eine echte Datenbank (z. B. Postgres) zuverlässiger. Wenn du möchtest, helfe ich dir beim Migrieren von SQLite auf Postgres.
+
+
 
 Weiteres
 
