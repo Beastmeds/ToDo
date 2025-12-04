@@ -4,6 +4,8 @@ import { isFirebaseConfigured, db } from '../firebase'
 import { collection, query, where, onSnapshot, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore'
 
 export default function TodoList({ token }){
+  // prefer a per-request working base (App detects working base and may pass it via global),
+  // fallback to createApi(token) which uses ENV_BASE or localhost.
   const api = createApi(token)
   const [todos, setTodos] = useState([])
   const [text, setText] = useState('')
