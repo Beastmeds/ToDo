@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "start": "npm start --prefix server",
-    "build": "npm run build --prefix client"
+    "build": "npm run build --prefix client",
+    "postinstall": "npm install --prefix client && npm install --prefix server",
+    "heroku-postbuild": "npm run build --prefix client"
   }
 }
